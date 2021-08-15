@@ -1,41 +1,40 @@
 
-import React, { Component } from 'react';
+import React,  {useState,useEffect} from 'react';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import './App.css';
 import Scroll from '../components/Scroll';
 import ErrorBoundary from "../components/ErrorBoundary";
 
-class App extends Component{
-    constructor(){
-        super();
-        this.state={
-            robots:[],
-            searchfield:''
-        }
-    }
-    componentDidMount(){
+function App (){
+   
+    const [robots, setRobots] = useState([]);
+    const [searchfield, setSearchfield] = useState('');
+    const [count,setCount] = useState(0);
+    useEffect(()=>{
         fetch('https://jsonplaceholder.typicode.com/users')
         .then(Response=> Response.json())
-        .then(users=> this.setState({robots:users}));
+        .then(users=> {setRobots(users)});
+        console.log(count)
+    },[count])
 
+    const onSearchChange=(event)=>{
+        setSearchfield(event.target.value);
     }
-    onSearchChange=(event)=>{
-        this.setState({searchfield:event.target.value});
-    }
+    
+    const filteredRobots = robots.filter(robot=>{
+        return robot.name.toLowerCase().includes(searchfield.toLowerCase());
+    });
 
-    render(){
-        const filteredRobots = this.state.robots.filter(robot=>{
-            return robot.name.toLowerCase().includes(this.state.searchfield.toLowerCase());
-        });
-        if(!this.state.robots.length){
-            return <h1>Loading</h1>
-        }
-        else{
+    if(!robots.length){
+        return <h1>Loading</h1>
+    }
+    else{
     return(
         <div className='tc'>
             <h1 className='f1'>RoboFriends</h1>
-            <SearchBox searchChange={this.onSearchChange}/>
+            <button onClick={()=>setCount(count+1)}>Click here</button>
+            <SearchBox searchChange={onSearchChange}/>
             <Scroll>
                 <ErrorBoundary>
                      <CardList robots={filteredRobots}/>
@@ -46,7 +45,7 @@ class App extends Component{
         
     );
         }
-    }
 }
+
 
 export default App;
